@@ -4,6 +4,20 @@ Jupyter notebooks and visualizations for exploring natural history collection da
 
 The notebooks use **pandas**, **matplotlib**, and **NumPy** to examine when specimens were collected, who collected them, and where they originated. Saved graphs can be viewed without running the notebooks; rerunning an analysis requires the source collection CSV.
 
+## Graphs and maps
+
+Open any image below to view the full-size figure.
+
+| Figure | Image |
+| --- | --- |
+| Entire egg collection over time — 12-month moving average | [View graph](Egg_collection_smoothed_monthly.png) |
+| Herbert W. Brandt — annual egg totals | [View graph](Brandt_eggs_collected_by_year.png) |
+| Herbert W. Brandt — daily egg totals | [View graph](Brandt_eggs_collected_by_day.png) |
+| Herbert W. Brandt — monthly totals with a 12-month moving average | [View graph](Brandt_eggs_smoothed_monthly.png) |
+| Collector rankings — top 50, linear scale | [View graph](Eggs_by_collector_top50.png) |
+| Collector rankings — every collector, logarithmic scale | [View graph](Eggs_by_collector_all.png) |
+| Geographic heat map — worldwide and North American views | [View map](Egg_collection_location_heatmap.png) |
+
 ## Analyses
 
 | Notebook | Analysis |
@@ -120,4 +134,5 @@ Collection-data permissions are separate from the licenses for these geographic 
 
 - `museum-scanner` — the related scanning project.
 - [`museum-transcription`](https://github.com/erl67/museum-transcription) — the related transcription project.
+
 
