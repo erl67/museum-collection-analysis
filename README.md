@@ -132,7 +132,7 @@ Collection-data permissions are separate from the licenses for these geographic 
 
 ## Related projects
 
-- `museum-scanner` — the related scanning project.
+- [`museum-scanner`](https://github.com/erl67/museum-scanner) — the related scanning project.
 - [`museum-transcription`](https://github.com/erl67/museum-transcription) — the related transcription project.
 
 
