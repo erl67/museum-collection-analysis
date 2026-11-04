@@ -1,6 +1,6 @@
 # AviList Taxonomy Review
 
-These workbooks compare the bird egg and fluid-preserved specimen catalogues of the Carnegie Museum of Natural History with **AviList v2026**. They document direct taxonomic updates and flag determinations that need review.
+These workbooks compare the bird egg and fluid-preserved specimen catalogues of the Carnegie Museum of Natural History with [**AviList v2026**](https://www.avilist.org/checklist/v2026/). They document direct taxonomic updates and flag determinations that need review.
 
 - Bird eggs — [AviList_Eggs_taxonomic_review.xlsx](AviList_Eggs_taxonomic_review.xlsx)
 - Fluid-preserved birds — [AviList_Fluids_taxonomic_review.xlsx](AviList_Fluids_taxonomic_review.xlsx)
