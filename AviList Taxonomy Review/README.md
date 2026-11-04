@@ -2,18 +2,14 @@
 
 These workbooks compare the bird egg and fluid-preserved specimen catalogues of the Carnegie Museum of Natural History with **AviList v2026**. They document direct taxonomic updates and flag determinations that need review.
 
-| Collection | Workbook |
-| --- | --- |
-| Bird eggs | [AviList_Eggs_taxonomic_review.xlsx](AviList_Eggs_taxonomic_review.xlsx) |
-| Fluid-preserved birds | [AviList_Fluids_taxonomic_review.xlsx](AviList_Fluids_taxonomic_review.xlsx) |
+- Bird eggs — [AviList_Eggs_taxonomic_review.xlsx](AviList_Eggs_taxonomic_review.xlsx)
+- Fluid-preserved birds — [AviList_Fluids_taxonomic_review.xlsx](AviList_Fluids_taxonomic_review.xlsx)
 
 ## Inputs and scope
 
-| Input | Role |
-| --- | --- |
-| `EggSlipReorganizationProject_FULL.xlsx - Full List.csv` | Egg Sheet export with scientific names, structured genus and epithet fields, families, catalogue numbers, localities, and Howard & Moore numbers. |
-| `CM_FluidPreserved.xlsx` | Fluid Sheet export with the same core comparison fields plus previous identifications where recorded. |
-| `AviList-v2026-20Oct2026-extended-version.xlsx` | Extended checklist published 20 October 2026. It provides accepted names, ranks, families, ranges, Avibase IDs, decision summaries, and a bibliography. |
+- `EggSlipReorganizationProject_FULL.xlsx - Full List.csv` — Egg Sheet export with scientific names, structured genus and epithet fields, families, catalogue numbers, localities, and Howard & Moore numbers.
+- `CM_FluidPreserved.xlsx` — Fluid Sheet export with the same core comparison fields plus previous identifications where recorded.
+- `AviList-v2026-20Oct2026-extended-version.xlsx` — Extended checklist published 20 October 2026. It provides accepted names, ranks, families, ranges, Avibase IDs, decision summaries, and a bibliography.
 
 The Egg Sheet contained **10,189 data rows**, of which **10,174** had scientific names, representing **1,226 distinct name strings**. The Fluid Sheet contained **6,840 data rows**, of which **6,836** entered the audit, representing **1,514 distinct recorded names or identification labels**. The fluid review retains two blank rows and two “No specimen” placeholders in the sorted Fluid Sheet tab and excludes them from the audit totals. Counts refer to catalogue rows.
 
