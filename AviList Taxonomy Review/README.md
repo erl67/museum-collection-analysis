@@ -2,8 +2,8 @@
 
 These workbooks compare the bird egg and fluid-preserved specimen catalogues of the Carnegie Museum of Natural History with [**AviList v2026**](https://www.avilist.org/checklist/v2026/). They document direct taxonomic updates and flag determinations that need review.
 
-- Bird eggs — [AviList_Eggs_taxonomic_review.xlsx](AviList_Eggs_taxonomic_review.xlsx)
-- Fluid-preserved birds — [AviList_Fluids_taxonomic_review.xlsx](AviList_Fluids_taxonomic_review.xlsx)
+- [Bird eggs](https://docs.google.com/spreadsheets/d/1E7LpFObmTzfDGmwIsvtUQZV9UnkNOrd6t6YgbxsfeOE/edit?usp=sharing)
+- [Fluid-preserved birds](https://docs.google.com/spreadsheets/d/1BpUqwXkKgVxwtAtW0CuHJ337PAWfhwzcJWL7nd5artg/edit?usp=sharing)
 
 ## Inputs and scope
 
@@ -48,7 +48,7 @@ The egg **Changes** tab groups **1,128 affected records** into **166 entries**, 
 
 Apply **Update** entries to the corresponding taxonomic fields together, preserving historical determinations. For **Review**, confirm the identification or locality against the original documentation or specimen before applying a candidate. The locality checks are targeted, and the results reflect the determinations recorded in the supplied exports.
 
-Howard & Moore numbers are retained as historical references. The workbooks list Avibase taxon and species IDs separately where available. The AviList sequence number and worksheet row locate an entry in this specific release.
+Howard & Moore numbers are retained as historical references. The workbooks list Avibase taxon and species IDs separately where available. The AviList sequence number and worksheet row locate an entry in this specific release. Wikipedia links are provided for convenience using the old scientific name as a search term.
 
 ## Attribution
 
