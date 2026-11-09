@@ -79,20 +79,6 @@ Howard & Moore numbers are retained as historical references. The workbooks list
 
 Wikipedia searches use **genus and species only**, omitting subspecies, for both the old and proposed names. The intraspecific manakin intergrades search *Lepidothrix coronata* once; the intergeneric hybrid's new search includes both parent binomials, and its old search uses the historical name *Pipra anomala*. The unidentified passerine and an unassigned replacement have no corresponding species link. Wikipedia links provide orientation; taxonomic evidence is identified separately.
 
-## Restoring hyperlink labels in Google Sheets
-
-[RestoreAviListLabels.gs](RestoreAviListLabels.gs) reads the matching Excel export from this repository and restores the original visible labels on imported hyperlink formulas. It matches each formula's destination against the Excel source and preserves manually customized labels.
-
-1. Keep the matching `AviList_Eggs_taxonomic_review.xlsx`, `AviList_Fluids_taxonomic_review.xlsx`, or `AviList_Types_taxonomic_review.xlsx` in this folder and commit and push it before running the linker. The script reads `main` by default. For an older imported revision, set `SOURCE_REF` to the commit containing that export.
-2. Use the script in Google Apps Script with the Google Sheets API enabled under Services. The three shared spreadsheet IDs are configured in `AVI_BOOKS`; update the corresponding ID if a workbook is imported as a different Google spreadsheet. Run as an editor of the selected spreadsheet.
-3. Run the collection's preview and then its matching restore:
-
-   - Eggs: `previewEggsLabels()` → `restoreEggsLabels()`.
-   - Fluids: `previewFluidsLabels()` → `restoreFluidsLabels()`.
-   - Types: `previewTypesLabels()` → `restoreTypesLabels()`.
-
-The preview leaves cells and columns unchanged. The Types restore recognizes both the original and updated layout. If Previous Identifications is still in K on Changes, it moves that column to H, between the reason and evidence keys, and repairs return links whose destinations shifted. It also handles the Types workbook's All names, Type notes, and Type Sheet navigation. The column move and label restoration can therefore be applied to the existing Types Google Sheet.
-
 ## Attribution
 
 AviList Core Team. 2026. *AviList: The Global Avian Checklist*, v2026. The checklist and reproduced decision summaries are licensed under CC BY 4.0. [AviList v2026 DOI](https://doi.org/10.2173/avilist.v2026) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
