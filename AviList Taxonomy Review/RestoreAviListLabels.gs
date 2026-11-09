@@ -3,7 +3,8 @@
  *
  * Paste into Code.gs in Apps Script. Add Google Sheets API under Services.
  * Run a preview before running its corresponding restore.
- * Run as an editor of both Google spreadsheets.
+ * Run as an editor of the Google spreadsheets selected for restoration.
+ * Types restore also moves Previous Identifications from K to H if needed.
  *
  * Use the same Excel revision you imported. For an older import, set
  * SOURCE_REF to the Git commit SHA containing that export.
@@ -34,6 +35,22 @@ const AVI_BOOKS = [
       'Fluid Sheet': ['A'],
     },
   },
+  {
+    name: 'Types',
+    id: '1U4BAHmCsyQsLNlsFFxV7nTNxVMjNMQC5MH-XiK0YEso',
+    movePreviousIdentifications: true,
+    columns: {
+      Changes: ['I', 'J', 'Q', 'R'],
+      'Affected records': ['A', 'Q'],
+      'All names': ['I'],
+      Decisions: ['E', 'G', 'H'],
+      References: ['A', 'D', 'E'],
+      'Read me': ['B'],
+      'Type notes': ['A', 'E', 'I'],
+      'Link index': ['B', 'C'],
+      'Type Sheet': ['N'],
+    },
+  },
 ];
 
 function previewAviListLabels() {
@@ -60,6 +77,14 @@ function restoreFluidsLabels() {
   runAviListLabels_(true, 'Fluids');
 }
 
+function previewTypesLabels() {
+  runAviListLabels_(false, 'Types');
+}
+
+function restoreTypesLabels() {
+  runAviListLabels_(true, 'Types');
+}
+
 function runAviListLabels_(apply, name) {
   if (apply && typeof Sheets === 'undefined') {
     throw new Error('Add the Google Sheets API under Services before running the restore.');
@@ -70,7 +95,7 @@ function runAviListLabels_(apply, name) {
     for (const book of AVI_BOOKS) {
       if (name && book.name !== name) continue;
       console.log(book.name + ': reading the Excel export from GitHub.');
-      const data = planAviListLabels_(book);
+      const data = planAviListLabels_(book, apply);
       if (apply) {
         const result = data.length ? Sheets.Spreadsheets.Values.batchUpdate({
           valueInputOption: 'USER_ENTERED',
@@ -85,7 +110,7 @@ function runAviListLabels_(apply, name) {
   }
 }
 
-function planAviListLabels_(book) {
+function planAviListLabels_(book, apply) {
   const sources = readAviListExcel_(book);
   const spreadsheet = SpreadsheetApp.openById(book.id);
   const tabs = new Map(spreadsheet.getSheets().map(tab => [tab.getName(), tab]));
@@ -94,12 +119,21 @@ function planAviListLabels_(book) {
   const examples = [];
   const skipped = [];
 
+  // Validate every required tab before making the requested column move.
+  for (const tabName of Object.keys(book.columns)) {
+    if (!tabs.has(tabName)) throw new Error(book.name + ': Google Sheets tab missing: ' + tabName);
+  }
+  const legacyTypesColumns = prepareAviListColumnLayout_(book, spreadsheet, Boolean(apply));
+
   for (const [tabName, columns] of Object.entries(book.columns)) {
     const tab = tabs.get(tabName);
     if (!tab) throw new Error(book.name + ': Google Sheets tab missing: ' + tabName);
     const tabLastRow = tab.getLastRow();
-    for (const column of columns) {
-      const candidates = sources.get(tabName).filter(link => link.column === column);
+    for (const sourceColumn of columns) {
+      // A preview reads the old positions without moving anything.
+      const column = legacyTypesColumns && tabName === 'Changes'
+        ? legacyAviListChangesColumn_(sourceColumn) : sourceColumn;
+      const candidates = sources.get(tabName).filter(link => link.column === sourceColumn);
       if (!candidates.length) continue;
 
       const lastRow = Math.min(tabLastRow, Math.max(...candidates.map(link => link.row)));
@@ -110,6 +144,7 @@ function planAviListLabels_(book) {
       let otherLabel = 0;
       let unmatched = 0;
       let externalWithoutFormula = 0;
+      let movedTargets = 0;
 
       for (const link of candidates) {
         const formula = formulas[link.row - 1]?.[0] || '';
@@ -119,24 +154,31 @@ function planAviListLabels_(book) {
           externalWithoutFormula++;
           continue;
         }
-        if (!parsed || !matchesAviListTarget_(parsed.url, link, gids, book.id)) {
+        const targetMatches = parsed && matchesAviListTarget_(parsed.url, link, gids, book.id);
+        const movedTarget = parsed && !targetMatches
+          && matchesLegacyAviListTarget_(parsed.url, link, gids, book);
+        if (!parsed || (!targetMatches && !movedTarget)) {
           unmatched++;
           if (skipped.length < 8) skipped.push(cell);
           continue;
         }
-        if (parsed.label === link.label) {
+        if (parsed.label === link.label && !movedTarget) {
           alreadyCorrect++;
           continue;
         }
         // Sheets' import duplicates the URL as the label. Preserve labels
         // that already contain other text, including manual corrections.
-        if (parsed.label !== null && parsed.label !== parsed.url) {
+        if (parsed.label !== null && parsed.label !== parsed.url && parsed.label !== link.label) {
           otherLabel++;
           continue;
         }
-        updates[link.row - 1] = parsed.prefix + parsed.separator
+        const prefix = movedTarget
+          ? '=HYPERLINK("#gid=' + gids.get(link.targetTab) + '&range=' + link.target + '"'
+          : parsed.prefix;
+        updates[link.row - 1] = prefix + parsed.separator
           + '"' + link.label.replace(/"/g, '""') + '")';
         changed++;
+        if (movedTarget) movedTargets++;
         if (examples.length < 4) examples.push(cell + ' → ' + link.label);
       }
       if (changed) {
@@ -149,12 +191,49 @@ function planAviListLabels_(book) {
       console.log(book.name + ' / ' + tabName + ' ' + column + ': ' + changed
         + ' to restore, ' + alreadyCorrect + ' already correct, ' + otherLabel
         + ' other labels kept, ' + unmatched + ' without a matching formula, '
-        + externalWithoutFormula + ' external links without formulas left as-is.');
+        + externalWithoutFormula + ' external links without formulas left as-is; '
+        + movedTargets + ' return links follow the moved Changes column.');
     }
   }
   for (const example of examples) console.log(book.name + ' example: ' + example);
   if (skipped.length) console.log(book.name + ' unmatched examples: ' + skipped.join(', '));
   return data;
+}
+
+function legacyAviListChangesColumn_(column) {
+  return ({H: 'K', I: 'H', J: 'I', K: 'J'})[column] || column;
+}
+
+function prepareAviListColumnLayout_(book, spreadsheet, apply) {
+  if (!book.movePreviousIdentifications) return false;
+  const tab = spreadsheet.getSheetByName('Changes');
+  if (!tab) throw new Error(book.name + ': Google Sheets tab missing: Changes');
+  const normalize = text => String(text).trim().replace(/\s+/g, ' ').toLowerCase();
+  const current = ['Previous Identifications', 'Evidence keys', 'Affected catalog number', 'Record scope'].map(normalize);
+  const legacy = ['Evidence keys', 'Affected catalog number', 'Record scope', 'Previous Identifications'].map(normalize);
+  const headers = () => tab.getRange('H7:K7').getDisplayValues()[0].map(normalize);
+  const matches = expected => JSON.stringify(headers()) === JSON.stringify(expected);
+  if (matches(current)) return false;
+  if (!matches(legacy)) {
+    throw new Error(book.name + ': Changes H7:K7 does not match the original or updated Types layout. No columns were moved.');
+  }
+  if (!apply) {
+    console.log(book.name + ': restore will move Previous Identifications from K to H (between G and the evidence keys). Preview leaves the columns unchanged.');
+    return true;
+  }
+  tab.moveColumns(tab.getRange('K:K'), 8);
+  SpreadsheetApp.flush();
+  if (!matches(current)) throw new Error(book.name + ': could not verify the new Changes column order.');
+  console.log(book.name + ': moved Previous Identifications from K to H.');
+  return false;
+}
+
+function matchesLegacyAviListTarget_(url, link, gids, book) {
+  if (!book.movePreviousIdentifications || link.targetTab !== 'Changes') return false;
+  const match = link.target.match(/^([A-Z]+)(\d+)$/);
+  if (!match) return false;
+  const target = legacyAviListChangesColumn_(match[1]) + match[2];
+  return target !== link.target && matchesAviListTarget_(url, {...link, target}, gids, book.id);
 }
 
 function parseAviListFormula_(formula) {
@@ -239,17 +318,28 @@ function readAviListExcel_(book) {
     }
 
     const labeledLinks = [];
+    const headers = new Map();
     // Scan the workbook XML in JavaScript. Calling XmlService methods for
     // every cell and hyperlink can exceed the Apps Script execution limit.
     for (const [, attributes, contents] of excelElements_(worksheet, 'c')) {
-      const link = links.get(excelAttribute_(attributes, 'r'));
-      if (!link || !contents) continue;
+      const address = excelAttribute_(attributes, 'r');
+      const link = links.get(address);
+      const checkHeader = book.movePreviousIdentifications && name === 'Changes' && /^(H|I|J|K)7$/.test(address);
+      if ((!link && !checkHeader) || !contents) continue;
       const value = decodeExcelXml_(excelElements_(contents, 'v').next().value?.[2] || '');
       const type = excelAttribute_(attributes, 't');
       const label = type === 's' ? (value ? strings[Number(value)] : '')
         : type === 'inlineStr' ? excelText_(contents)
         : value;
-      if (label) labeledLinks.push({...link, label});
+      if (checkHeader) headers.set(address, label);
+      if (link && label) labeledLinks.push({...link, label});
+    }
+    if (book.movePreviousIdentifications && name === 'Changes') {
+      const expected = ['Previous Identifications', 'Evidence keys', 'Affected catalog number', 'Record scope'];
+      const actual = ['H7', 'I7', 'J7', 'K7'].map(address => headers.get(address));
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        throw new Error(book.name + ': the GitHub Excel export must be the updated revision with Previous Identifications in H.');
+      }
     }
     sources.set(name, labeledLinks);
   }
